@@ -1,0 +1,72 @@
+name: Build Tutorials Example
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  setup-ide-docker:
+    name: Setup IDE Docker
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get some info
+        run: |
+          echo "# docker images" && docker images
+          echo "# df -h" && df -h
+          echo "# pwd" && pwd
+          echo "# ls -la" && ls -la
+
+      - name: Build Docker Conteiner
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          image_name: q20c5
+          dockerfile: .docker/quartus.dockerfile
+          push_image_and_stages: true
+          pull_image_and_stages: false
+
+      - name: Get some info
+        run: |
+          echo "# docker images" && docker images
+          echo "# df -h" && df -h
+          echo "# pwd" && pwd
+          echo "# ls -la" && ls -la
+
+
+  other-job:
+    name: Play
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get some info
+        run: |
+          echo "# docker images" && docker images
+          echo "# df -h" && df -h
+          echo "# pwd" && pwd
+          echo "# ls -la" && ls -la
+
+      - name: Get IDE
+        run: docker pull ghcr.io/morriganr/q20c5:latest
+
+      - name: Get some info
+        run: |
+          echo "# docker images" && docker images
+          echo "# df -h" && df -h
+          echo "# pwd" && pwd
+          echo "# ls -la" && ls -la
+      - name: gfda
+        run: docker run -v $(pwd):/usr/src/de10nano ghcr.io/morriganr/q20c5:latest /usr/src/de10nano/.docker/play-in-docker.sh
