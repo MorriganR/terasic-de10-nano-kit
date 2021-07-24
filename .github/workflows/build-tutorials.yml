@@ -69,4 +69,4 @@ jobs:
           echo "# pwd" && pwd
           echo "# ls -la" && ls -la
       - name: gfda
-        run: docker run -v $(pwd):/usr/src/de10nano ghcr.io/morriganr/q20c5:latest /usr/src/de10nano/.docker/play-in-docker.sh
+        run: docker run -v $(pwd):/usr/src/de10nano --memory="5g" --memory-swap="15g" ghcr.io/morriganr/q20c5:latest /usr/src/de10nano/.docker/play-in-docker.sh
