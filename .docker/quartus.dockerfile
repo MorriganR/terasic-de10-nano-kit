@@ -1,14 +1,14 @@
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl locales
+RUN apt-get update && apt-get install -y curl locales libtcmalloc-minimal4 libglib2.0-0
 
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-RUN apt-get install -y --no-install-recommends ubuntu-desktop
+# RUN apt-get install -y --no-install-recommends ubuntu-desktop
 
 # add Cyclone IV
 #  curl -O https://download.altera.com/akdlm/software/acdsinst/20.1std.1/720/ib_installers/cyclone-20.1.1.720.qdz &&\
@@ -22,3 +22,5 @@ RUN mkdir /qinst &&\
   rm -rf /qinst
 
 RUN pwd && ls -la
+
+ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4

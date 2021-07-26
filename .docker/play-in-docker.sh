@@ -15,7 +15,9 @@ echo "# ls -la" && ls -la
 
 echo "# env" && env
 
-apt-get update && apt-get install -y libtcmalloc-minimal4 libglib2.0-0
+# apt-get update && apt-get install -y libtcmalloc-minimal4 libglib2.0-0
+echo "# ls -la /usr/lib/x86_64-linux-gnu/libtcmalloc_minimal*" && ls -la /usr/lib/x86_64-linux-gnu/libtcmalloc_minimal* || :
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4
 
 #echo "apt-get update && apt-get install --no-install-recommends ubuntu-desktop -y" && \
 #apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ubuntu-desktop
