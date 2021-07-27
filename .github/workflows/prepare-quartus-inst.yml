@@ -6,7 +6,7 @@ on:
     - main
     paths:
     - '.github/workflows/prepare-quartus-inst.yml'
-    - '.docker/**'
+    - '.docker/quartus-inst-**'
   workflow_dispatch:
 
 jobs:

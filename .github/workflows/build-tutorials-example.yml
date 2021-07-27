@@ -13,28 +13,34 @@ jobs:
     strategy:
       matrix:
         qver: [17_595, 20_720]
-        example: ['MyFirstFPGA', 'MyFirstHPSSystem', 'MyFirstHPSSystem']
+        example: ['MyFirstFPGA', 'MyFirstQsysSystem', 'MyFirstHPSSystem']
+      fail-fast: false
     runs-on: ubuntu-18.04
 
     steps:
+      - name: apt-get install
+        run: |
+          sudo apt-get update && sudo apt-get install -y expect
+
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Get Quartus
-        run: docker pull ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}:latest
+        run: docker pull ghcr.io/morriganr/quartus-inst-c5-${{matrix.qver}}:latest
 
       - name: Install Quartus
         run: |
-          docker create -ti --name qsrc ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}:latest bash
+          docker create -ti --name qsrc ghcr.io/morriganr/quartus-inst-c5-${{matrix.qver}}:latest bash
           echo "# get files" && docker cp qsrc:qinst .
           echo "# rem docker"
           docker rm -f qsrc
-          docker rmi -f ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}
+          docker rmi -f ghcr.io/morriganr/quartus-inst-c5-${{matrix.qver}}
           echo "# start install"
           cd ./qinst
-          chmod +x *.run
-          export Q_INST_DIR=/home/runner/work/intelFPGA_lite
-          ./QuartusLiteSetup-*-linux.run --mode unattended --installdir ${Q_INST_DIR} --accept_eula 1
+          Q_INST_DIR=/home/runner/work/intelFPGA_lite
+          Q_INST_FILE=$( pwd )/$( ls QuartusLiteSetup-*-linux.run )
+          chmod +x $Q_INST_FILE
+          ../.docker/play-setup.sh $Q_INST_FILE $Q_INST_DIR
           echo "# rem files"
           cd ../
           rm -rf ./qinst
