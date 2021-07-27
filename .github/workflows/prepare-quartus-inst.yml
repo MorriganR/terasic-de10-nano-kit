@@ -1,0 +1,33 @@
+name: Prepare Quartus install
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/prepare-quartus-inst.yml'
+    - '.docker/**'
+  workflow_dispatch:
+
+jobs:
+  quartus-to-docker:
+    name: Quartus ${{ matrix.qver }} to Docker
+    strategy:
+      matrix:
+        qver: [17_595, 20_720]
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build&Push Docker Conteiner
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          image_name: quartus-inst-c5-${{ matrix.qver }}
+          dockerfile: .docker/quartus-inst-c5-${{ matrix.qver }}
+          push_image_and_stages: true
+          pull_image_and_stages: false

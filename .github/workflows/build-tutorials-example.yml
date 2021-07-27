@@ -8,36 +8,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  play-tutorials-job:
-    name: Play Tutorials
-    runs-on: ubuntu-20.04
+  build-tutorials-job:
+    name: Build ${{matrix.example}} with Quartus-${{matrix.qver}}
+    strategy:
+      matrix:
+        qver: [17_595, 20_720]
+        example: ['MyFirstFPGA', 'MyFirstHPSSystem', 'MyFirstHPSSystem']
+    runs-on: ubuntu-18.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get IDE
-        run: docker pull ghcr.io/morriganr/q20instc5:latest
+      - name: Get Quartus
+        run: docker pull ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}:latest
 
-      - name: Install IDE
+      - name: Install Quartus
         run: |
-          docker create -ti --name qsrc ghcr.io/morriganr/q20instc5:latest bash
+          docker create -ti --name qsrc ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}:latest bash
           echo "# get files" && docker cp qsrc:qinst .
           echo "# rem docker"
           docker rm -f qsrc
-          docker rmi -f ghcr.io/morriganr/q20instc5
+          docker rmi -f ghcr.io/${{github.actor}}/quartus-inst-c5-${{matrix.qver}}
           echo "# start install"
           cd ./qinst
           chmod +x *.run
-          export Q_INST_DIR=/home/runner/work/terasic-de10-nano-kit/intelFPGA_lite/20.1
-          ./QuartusLiteSetup-20.1.1.720-linux.run --mode unattended --installdir ${Q_INST_DIR} --accept_eula 1
+          export Q_INST_DIR=/home/runner/work/intelFPGA_lite
+          ./QuartusLiteSetup-*-linux.run --mode unattended --installdir ${Q_INST_DIR} --accept_eula 1
           echo "# rem files"
           cd ../
           rm -rf ./qinst
 
-      - name: Compile MyFirstHPSSystem blink
+      - name: Build ${{matrix.example}} blink
         run: |
-          export Q_INST_DIR=/home/runner/work/terasic-de10-nano-kit/intelFPGA_lite/20.1
+          export Q_INST_DIR=/home/runner/work/intelFPGA_lite
           export QUARTUS_ROOTDIR=${Q_INST_DIR}/quartus
           export QUARTUS_ROOTDIR_OVERRIDE=${Q_INST_DIR}/quartus
           export SOPC_KIT_NIOS2=${Q_INST_DIR}/nios2eds
@@ -49,18 +53,18 @@ jobs:
           export PATH=${Q_INST_DIR}/nios2eds/bin/gnu/H-x86_64-pc-linux-gnu/bin/:$PATH
           export PATH=${Q_INST_DIR}/quartus/linux64/gnu/:$PATH
           echo "# quartus_sh --version" && quartus_sh --version
-          cd /home/runner/work/terasic-de10-nano-kit/terasic-de10-nano-kit/tutorials/MyFirstHPSSystem/
+          cd /home/runner/work/terasic-de10-nano-kit/terasic-de10-nano-kit/tutorials/${{matrix.example}}/
           echo "# pwd" && pwd
           echo "# ./build_example.sh"
           ./build_example.sh || :
 
-      - name: Prepare artifact MyFirstHPSSystem blink
+      - name: Prepare artifact ${{matrix.example}} blink
         id: push_artifact
-        run: tar -cvzf MyFirstHPSSystem.tgz ./tutorials/MyFirstHPSSystem/blink
+        run: tar -cvzf ${{matrix.example}}_${{matrix.qver}}.tgz ./tutorials/${{matrix.example}}/blink
 
-      - name: Push artifact MyFirstHPSSystem blink
+      - name: Push artifact ${{matrix.example}} blink
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: MyFirstHPSSystem.tgz
-          path: ./MyFirstHPSSystem.tgz
+          name: ${{matrix.example}}_${{matrix.qver}}.tgz
+          path: ./${{matrix.example}}_${{matrix.qver}}.tgz
           retention-days: 2

@@ -1,0 +1,9 @@
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y curl
+
+RUN mkdir /qinst &&\
+  cd /qinst &&\
+  curl -O https://download.altera.com/akdlm/software/acdsinst/17.0std/595/ib_installers/QuartusLiteSetup-17.0.0.595-linux.run &&\
+  curl -O https://download.altera.com/akdlm/software/acdsinst/17.0std/595/ib_installers/cyclonev-17.0.0.595.qdz
