@@ -61,15 +61,13 @@ jobs:
           echo "# quartus_sh --version" && quartus_sh --version
           cd /home/runner/work/terasic-de10-nano-kit/terasic-de10-nano-kit/azure-de10nano-document/sensor-aggregation-reference-design-for-azure/hw/${{matrix.example}}/
           echo "# pwd" && pwd
+          chmod +x ./build_all_flow.sh
           echo "# ./build_all_flow.sh"
           ./build_all_flow.sh || :
-      - name: Prepare artifact ${{matrix.example}}
-        id: push_artifact
-        run: tar -cvzf ${{matrix.example}}_${{matrix.qver}}.tgz ./sensor-aggregation-reference-design-for-azure/hw/${{matrix.example}}/output_files
 
       - name: Push artifact ${{matrix.example}}
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: ${{matrix.example}}_${{matrix.qver}}.tgz
-          path: ./${{matrix.example}}_${{matrix.qver}}.tgz
+          name: ${{matrix.example}}_${{matrix.qver}}_output_files
+          path: ./azure-de10nano-document/sensor-aggregation-reference-design-for-azure/hw/${{matrix.example}}/output_files
           retention-days: 2
